@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kane Entrance Answer — Class Ideas Wall</title>
+<meta name="description" content="Kane Entrance Answer — a shared idea wall where classmates post and read each other's ideas in real time.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --board-dark: #1e352a;
+    --board-mid: #274839;
+    --chalk-white: #f3f1e6;
+    --chalk-yellow: #f2c14e;
+    --chalk-blue: #7fb3c7;
+    --chalk-coral: #d97b83;
+    --ink: #26241f;
+    --card-cream: #faf4e3;
+    --muted: #b9c9bd;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background:
+      radial-gradient(circle at 20% 15%, rgba(255,255,255,0.03), transparent 40%),
+      radial-gradient(circle at 80% 80%, rgba(255,255,255,0.025), transparent 45%),
+      var(--board-dark);
+    font-family: 'Work Sans', sans-serif;
+    color: var(--chalk-white);
+    padding-bottom: 60px;
+  }
+
+  header {
+    text-align: center;
+    padding: 56px 20px 40px;
+    border-bottom: 2px dashed rgba(243,241,230,0.2);
+  }
+
+  header h1 {
+    font-family: 'Kalam', cursive;
+    font-weight: 700;
+    font-size: clamp(2.2rem, 5vw, 3.4rem);
+    margin: 0 0 10px;
+    letter-spacing: 0.5px;
+    text-shadow: 0 0 18px rgba(242,193,78,0.15);
+  }
+
+  header p {
+    color: var(--muted);
+    font-size: 1.05rem;
+    margin: 0;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+
+  #class-name-tag {
+    display: inline-block;
+    margin-top: 14px;
+    font-family: 'Kalam', cursive;
+    font-size: 1.1rem;
+    color: var(--chalk-yellow);
+    border: 1px dashed var(--chalk-yellow);
+    padding: 4px 16px;
+    border-radius: 20px;
+  }
+
+  main {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 40px 20px 0;
+  }
+
+  /* --- Post form, styled like a taped index card --- */
+  .post-card {
+    background: var(--card-cream);
+    color: var(--ink);
+    border-radius: 4px;
+    padding: 28px 28px 24px;
+    max-width: 520px;
+    margin: -10px auto 60px;
+    box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+    position: relative;
+  }
+
+  .tape {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-2deg);
+    width: 90px;
+    height: 28px;
+    background: rgba(242,193,78,0.55);
+    border: 1px solid rgba(255,255,255,0.4);
+  }
+
+  .post-card label {
+    display: block;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #6b6656;
+    margin: 14px 0 6px;
+    font-weight: 600;
+  }
+
+  .post-card input,
+  .post-card textarea {
+    width: 100%;
+    font-family: 'Work Sans', sans-serif;
+    font-size: 1rem;
+    padding: 10px 12px;
+    border: 1px solid #d8d0b5;
+    border-radius: 6px;
+    background: #fffdf7;
+    color: var(--ink);
+    resize: vertical;
+  }
+
+  .post-card textarea { min-height: 90px; }
+
+  .post-card input:focus,
+  .post-card textarea:focus {
+    outline: 2px solid var(--chalk-blue);
+    outline-offset: 1px;
+  }
+
+  #pin-btn {
+    margin-top: 20px;
+    width: 100%;
+    background: var(--board-dark);
+    color: var(--chalk-yellow);
+    border: none;
+    padding: 13px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'Kalam', cursive;
+    letter-spacing: 0.3px;
+    transition: transform 0.15s ease, background 0.15s ease;
+  }
+
+  #pin-btn:hover { background: #142720; transform: translateY(-1px); }
+  #pin-btn:disabled { opacity: 0.6; cursor: default; transform: none; }
+
+  #form-msg {
+    font-size: 0.85rem;
+    margin-top: 10px;
+    min-height: 1.1em;
+  }
+  #form-msg.error { color: #a3352f; }
+  #form-msg.success { color: #2f6b3f; }
+
+  /* --- Wall of idea cards --- */
+  #wall {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 28px 22px;
+    padding: 10px 0 20px;
+  }
+
+  .idea-card {
+    background: var(--card-cream);
+    color: var(--ink);
+    border-radius: 3px;
+    padding: 22px 18px 18px;
+    box-shadow: 0 10px 22px rgba(0,0,0,0.28);
+    position: relative;
+    min-height: 140px;
+  }
+
+  .pin-dot {
+    position: absolute;
+    top: -9px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    box-shadow: 0 3px 5px rgba(0,0,0,0.4), inset 0 -2px 3px rgba(0,0,0,0.25);
+  }
+
+  .idea-name {
+    font-family: 'Kalam', cursive;
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin: 4px 0 2px;
+  }
+
+  .idea-time {
+    font-size: 0.72rem;
+    color: #8a8468;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .idea-text {
+    font-size: 0.96rem;
+    line-height: 1.45;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  #empty-state, #loading-state {
+    text-align: center;
+    color: var(--muted);
+    padding: 40px 20px;
+    font-size: 0.95rem;
+  }
+
+  footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.78rem;
+    padding: 30px 20px 0;
+    opacity: 0.7;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Kane Entrance Answer</h1>
+  <p>Pin an idea. Read what everyone else pinned. Everything here is visible to the whole class.</p>
+  <span id="class-name-tag">📌 Set your class name in the code — see comments</span>
+</header>
+
+<main>
+  <div class="post-card">
+    <div class="tape"></div>
+    <label for="name-input">Your name</label>
+    <input id="name-input" type="text" placeholder="e.g. Abebe" maxlength="40" required>
+
+    <label for="idea-input">Your idea</label>
+    <textarea id="idea-input" placeholder="Write your idea here..." maxlength="600" required></textarea>
+
+    <button id="pin-btn">📌 Pin it to the wall</button>
+    <div id="form-msg"></div>
+  </div>
+
+  <div id="loading-state">Loading ideas…</div>
+  <div id="empty-state" style="display:none;">No ideas yet — be the first to pin one! 📌</div>
+  <div id="wall"></div>
+</main>
+
+<footer>
+  Built for a class project · ideas are public to anyone with the link
+</footer>
+
+<!-- =========================================================
+     FIREBASE SETUP — replace the config below with your own.
+     Steps (free, ~10 minutes):
+     1. Go to https://console.firebase.google.com → "Add project"
+     2. In your project, click the "</>" (web app) icon to register a web app
+     3. Copy the firebaseConfig object it gives you and paste it below,
+        replacing the placeholder object entirely.
+     4. In the left menu go to "Firestore Database" → "Create database"
+        → start in TEST MODE (fine for a class project).
+     5. Save this file, then deploy it (see README instructions).
+     ========================================================= -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+  // ⬇️⬇️ REPLACE THIS ENTIRE OBJECT WITH YOUR OWN FIREBASE CONFIG ⬇️⬇️
+  const firebaseConfig = {
+    apiKey: "AIzaSyDapGmE3kw3hyqLxsKirLwlBv4AFJDYcpg",
+    authDomain: "class-ideas-wall.firebaseapp.com",
+    projectId: "class-ideas-wall",
+    storageBucket: "class-ideas-wall.firebasestorage.app",
+    messagingSenderId: "823339618198",
+    appId: "1:823339618198:web:29bfcefb9c4d3e641457b7"
+  };
+  // ⬆️⬆️ REPLACE THIS ENTIRE OBJECT WITH YOUR OWN FIREBASE CONFIG ⬆️⬆️
+
+  let db = null;
+  let firebaseReady = false;
+
+  try {
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+    firebaseReady = true;
+  } catch (e) {
+    console.error("Firebase not configured yet:", e);
+  }
+
+  const wall = document.getElementById('wall');
+  const loadingState = document.getElementById('loading-state');
+  const emptyState = document.getElementById('empty-state');
+  const nameInput = document.getElementById('name-input');
+  const ideaInput = document.getElementById('idea-input');
+  const pinBtn = document.getElementById('pin-btn');
+  const formMsg = document.getElementById('form-msg');
+
+  const CHALK_COLORS = ['#f2c14e', '#7fb3c7', '#d97b83', '#9fc48a', '#c9a6e0'];
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function hashRotation(id) {
+    let h = 0;
+    for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) % 1000;
+    return ((h % 7) - 3); // -3deg to 3deg
+  }
+
+  function colorFor(id) {
+    let h = 0;
+    for (let i = 0; i < id.length; i++) h += id.charCodeAt(i);
+    return CHALK_COLORS[h % CHALK_COLORS.length];
+  }
+
+  function formatTime(date) {
+    if (!date) return '';
+    return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) +
+      ' · ' + date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function renderIdeas(docs) {
+    loadingState.style.display = 'none';
+    if (docs.length === 0) {
+      emptyState.style.display = 'block';
+      wall.innerHTML = '';
+      return;
+    }
+    emptyState.style.display = 'none';
+    wall.innerHTML = docs.map(doc => {
+      const data = doc.data();
+      const rot = hashRotation(doc.id);
+      const color = colorFor(doc.id);
+      const ts = data.createdAt && data.createdAt.toDate ? data.createdAt.toDate() : null;
+      return `
+        <div class="idea-card" style="transform: rotate(${rot}deg);">
+          <div class="pin-dot" style="background: radial-gradient(circle at 35% 30%, #fff8, ${color});"></div>
+          <div class="idea-name">${escapeHtml(data.name || 'Anonymous')}</div>
+          <span class="idea-time">${formatTime(ts)}</span>
+          <div class="idea-text">${escapeHtml(data.idea || '')}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function subscribeToIdeas() {
+    if (!firebaseReady) {
+      loadingState.textContent = 'Firebase isn\'t configured yet — see the comments at the bottom of index.html.';
+      return;
+    }
+    db.collection('ideas').orderBy('createdAt', 'desc').onSnapshot(
+      snapshot => renderIdeas(snapshot.docs),
+      err => {
+        console.error(err);
+        loadingState.textContent = 'Could not load ideas. Check your Firebase config and Firestore rules.';
+        loadingState.style.display = 'block';
+      }
+    );
+  }
+
+  async function submitIdea() {
+    const name = nameInput.value.trim();
+    const idea = ideaInput.value.trim();
+    formMsg.textContent = '';
+    formMsg.className = '';
+
+    if (!name) {
+      formMsg.textContent = 'Please enter your name.';
+      formMsg.className = 'error';
+      nameInput.focus();
+      return;
+    }
+    if (!idea) {
+      formMsg.textContent = 'Please write your idea.';
+      formMsg.className = 'error';
+      ideaInput.focus();
+      return;
+    }
+    if (!firebaseReady) {
+      formMsg.textContent = 'Firebase isn\'t configured yet — see the setup comments in the code.';
+      formMsg.className = 'error';
+      return;
+    }
+
+    pinBtn.disabled = true;
+    pinBtn.textContent = 'Pinning…';
+    try {
+      await db.collection('ideas').add({
+        name: name,
+        idea: idea,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      ideaInput.value = '';
+      formMsg.textContent = 'Pinned! 📌';
+      formMsg.className = 'success';
+    } catch (e) {
+      console.error(e);
+      formMsg.textContent = 'Something went wrong — try again.';
+      formMsg.className = 'error';
+    } finally {
+      pinBtn.disabled = false;
+      pinBtn.textContent = '📌 Pin it to the wall';
+    }
+  }
+
+  pinBtn.addEventListener('click', submitIdea);
+  [nameInput, ideaInput].forEach(el => {
+    el.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && e.ctrlKey) submitIdea();
+    });
+  });
+
+  subscribeToIdeas();
+</script>
+
+</body>
+</html>
